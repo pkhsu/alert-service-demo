@@ -1,0 +1,36 @@
+version: '3.7'
+
+services:
+  alertmanager:
+    image: prom/alertmanager:v0.21.0
+    volumes:
+      - ./alertmanager:/etc/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+    ports:
+      - '9093:9093'
+
+  simulator:
+    build: ./simulator
+    depends_on:
+      - alertmanager
+      
+  webhook:
+    build: ./webhook
+    ports:
+      - '8000:8000'
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - '3000:3000'
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin  # 請更換為你自己的密碼
+    depends_on:
+      - alertmanager  # 如果您想要在 Grafana 啟動時確保 AlertManager 也已經運行
+
+volumes:
+  grafana_data:

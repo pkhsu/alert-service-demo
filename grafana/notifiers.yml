@@ -1,0 +1,16 @@
+notifiers:
+    - name: email-notifier
+      type: email
+      settings:
+          addresses: [your-email@example.com]  # 替換成你的 email 地址
+          host: smtp.example.com
+          user: your-email-account
+          password: your-email-password
+          skip_verify: true
+          from_address: grafana@example.com
+
+    - name: slack-notifier
+      type: slack
+      settings:
+          recipient: '#alerts'
+          url: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX  # 替換成你的 Slack Webhook URL
