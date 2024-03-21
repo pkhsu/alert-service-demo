@@ -12,10 +12,12 @@ route:
         severity: 'critical'
       receiver: 'critical-receiver'
       group_by: ['...']
+      continue: true # continue to match default receiver
 
     - match:
         severity: 'warning'
       receiver: 'warning-receiver'
+      continue: true # continue to match default receiver
 
 inhibit_rules:
   - source_match:
