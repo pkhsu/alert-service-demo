@@ -2,11 +2,12 @@ version: '3.7'
 
 services:
   alertmanager:
-    image: prom/alertmanager:v0.21.0
+    image: prom/alertmanager:v0.27.0
     volumes:
       - ./alertmanager:/etc/alertmanager
     command:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--web.external-url=YOUR_WEBHOOK_URL'
     ports:
       - '9093:9093'
 
@@ -15,10 +16,19 @@ services:
     depends_on:
       - alertmanager
       
+  #webhook api service for customize workflow implementation
   webhook:
     build: ./webhook
     ports:
       - '8000:8000'
+
+  smtp:
+    image: namshi/smtp
+
+    container_name: smtp_relay
+    restart: always
+    ports:
+     - "25:25"
 
   grafana:
     image: grafana/grafana:latest

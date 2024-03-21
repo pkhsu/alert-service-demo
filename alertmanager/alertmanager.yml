@@ -6,16 +6,44 @@ route:
   group_wait: 10s
   group_interval: 10s
   repeat_interval: 1h
-  receiver: 'web.hook'
+  receiver: 'default-receiver'
+  routes:
+    - match:
+        severity: 'critical'
+      receiver: 'critical-receiver'
+      group_by: ['...']
 
-receivers:
-- name: 'web.hook'
-  webhook_configs:
-  - url: 'http://webhook:8000/webhook'  # 您需要替換成實際的 Webhook 接收服務端點
+    - match:
+        severity: 'warning'
+      receiver: 'warning-receiver'
 
 inhibit_rules:
   - source_match:
       severity: 'critical'
     target_match:
-      severity: 'warning'
-    equal: ['alertname']
+      severity: 'info'
+    target_match_re:
+      sensor: 'Sensor1'
+    equal: ['alertname', 'sensor']
+
+receivers:
+# to webhook custom api
+- name: 'default-receiver'
+  webhook_configs:
+    - url: 'http://webhook:8000/webhook'
+
+# to email
+- name: 'critical-receiver'
+  email_configs:
+  - to: 'YOUR_EMAIL_RECEIVER'
+    send_resolved: true
+    smarthost: 'smtp:25' # 使用 Docker Compose 中定义的 smtp 服务名和端口
+    from: 'alertmanager@example.com'
+    require_tls: false # 本地测试时可以不使用 TLS
+
+# to slack
+- name: 'warning-receiver'
+  slack_configs:
+    - api_url: 'YOUR_SLACK_WEBHOOK'
+      channel: '#alerts'
+      send_resolved: true
